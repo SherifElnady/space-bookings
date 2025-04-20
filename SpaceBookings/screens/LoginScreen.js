@@ -6,15 +6,13 @@ const LoginScreen = () => {
   const navigation = useNavigation();
 
   const handleLogin = () => {
-    // Add your login logic here (e.g., authentication)
-    // Navigate to the Home screen after successful login
     navigation.navigate("Home");
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Login</Text>
-      <TextInput style={styles.input} placeholder="Username" />
+      <TextInput style={styles.input} placeholder="Email" />
       <TextInput style={styles.input} placeholder="Password" secureTextEntry />
       <Button title="Login" onPress={handleLogin} />
     </View>
@@ -26,6 +24,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     padding: 20,
+    backgroundColor: "#fff",
   },
   title: {
     fontSize: 24,
@@ -35,6 +34,7 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
+    borderColor: "#ccc",
     marginBottom: 15,
     paddingHorizontal: 15,
     borderRadius: 5,
