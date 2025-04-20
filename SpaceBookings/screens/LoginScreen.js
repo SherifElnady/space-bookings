@@ -6,7 +6,7 @@ const LoginScreen = () => {
   const navigation = useNavigation();
 
   const handleLogin = () => {
-    navigation.navigate("Home");
+    navigation.navigate("Main"); // important: go to the tab navigator!
   };
 
   return (
