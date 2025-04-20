@@ -1,35 +1,21 @@
-import React, { useState } from "react";
+import React from "react";
 import { View, Text, TextInput, Button, StyleSheet } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 
-const LoginScreen = ({ navigation }) => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+const LoginScreen = () => {
+  const navigation = useNavigation();
 
   const handleLogin = () => {
-    // Navigate to another screen after login (if needed)
-    if (navigation) {
-      navigation.navigate("HomeScreen"); // Replace 'HomeScreen' with your target screen name
-    }
+    // Add your login logic here (e.g., authentication)
+    // Navigate to the Home screen after successful login
+    navigation.navigate("Home");
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Login</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
+      <TextInput style={styles.input} placeholder="Username" />
+      <TextInput style={styles.input} placeholder="Password" secureTextEntry />
       <Button title="Login" onPress={handleLogin} />
     </View>
   );
@@ -40,25 +26,19 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     padding: 20,
-    backgroundColor: "#fff",
   },
   title: {
-    fontSize: 40,
-    fontWeight: "bold",
-    marginBottom: 20,
-    fontSize: 40,
+    fontSize: 24,
     fontWeight: "bold",
     marginBottom: 20,
     textAlign: "center",
   },
   input: {
-    height: 50, // Increased height for larger input fields
-    borderColor: "#ccc",
     borderWidth: 1,
     marginBottom: 15,
-    paddingHorizontal: 15, // Increased padding for better spacing
+    paddingHorizontal: 15,
     borderRadius: 5,
-    fontSize: 18, // Increased font size for better readability
+    fontSize: 18,
   },
 });
 
