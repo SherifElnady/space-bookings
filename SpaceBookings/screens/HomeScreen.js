@@ -1,18 +1,17 @@
 import React from "react";
-import { View, Text, StyleSheet, Button } from "react-native";
+import { View, Text, Button, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
 const HomeScreen = () => {
   const navigation = useNavigation();
 
-  const navigateToBooking = () => {
-    navigation.navigate("Booking");
-  };
-
   return (
     <View style={styles.container}>
       <Text style={styles.welcomeText}>Welcome</Text>
-      <Button title="Go to Booking" onPress={navigateToBooking} />
+      <Button
+        title="Go to Booking"
+        onPress={() => navigation.navigate("Booking")}
+      />
     </View>
   );
 };
