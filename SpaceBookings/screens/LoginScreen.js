@@ -8,23 +8,33 @@ const LoginScreen = () => {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isSigningUp, setIsSigningUp] = useState(false);
 
-  const handleLogin = async () => {
-    const { data, error } = await supabase.auth.signInWithPassword({
+  const handleAuth = async () => {
+    const method = isSigningUp
+      ? supabase.auth.signUp
+      : supabase.auth.signInWithPassword;
+
+    const { data, error } = await method({
       email,
       password,
     });
+
     if (error) {
-      alert("Login failed. Please check your credentials.");
+      alert(error.message);
     } else {
-      alert("Login successful!");
-      navigation.navigate("Main");
+      if (isSigningUp) {
+        alert("Account created! Please check your email to confirm.");
+        setIsSigningUp(false); // Go back to login mode
+      } else {
+        navigation.navigate("Main");
+      }
     }
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Login</Text>
+      <Text style={styles.title}>{isSigningUp ? "Sign Up" : "Login"}</Text>
 
       <TextInput
         style={styles.input}
@@ -42,7 +52,17 @@ const LoginScreen = () => {
         secureTextEntry
       />
 
-      <Button title="Login" onPress={handleLogin} />
+      <Button title={isSigningUp ? "Sign Up" : "Login"} onPress={handleAuth} />
+
+      <Button
+        title={
+          isSigningUp
+            ? "Already have an account? Log in"
+            : "Don't have an account? Sign up"
+        }
+        onPress={() => setIsSigningUp(!isSigningUp)}
+        color="#666"
+      />
     </View>
   );
 };
