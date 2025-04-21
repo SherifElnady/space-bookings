@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, Button, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { supabase } from "../supabase";
 
 const LoginScreen = () => {
   const navigation = useNavigation();
@@ -10,26 +9,8 @@ const LoginScreen = () => {
   const [password, setPassword] = useState("");
   const [isSigningUp, setIsSigningUp] = useState(false);
 
-  const handleAuth = async () => {
-    const method = isSigningUp
-      ? supabase.auth.signUp
-      : supabase.auth.signInWithPassword;
-
-    const { data, error } = await method({
-      email,
-      password,
-    });
-
-    if (error) {
-      alert(error.message);
-    } else {
-      if (isSigningUp) {
-        alert("Account created! Please check your email to confirm.");
-        setIsSigningUp(false); // Go back to login mode
-      } else {
-        navigation.navigate("Main");
-      }
-    }
+  const handleAuth = () => {
+    navigation.navigate("Main");
   };
 
   return (
