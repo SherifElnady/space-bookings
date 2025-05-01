@@ -1,7 +1,14 @@
 import React from "react";
-import AppNavigator from "./navigation/Navigation";
-import Navigation from "./navigation/Navigation";
+import { NavigationContainer } from "@react-navigation/native";
+import AppNavigator from "./navigation/Navigation"; // ✅ Corrected path
+import { UserProvider } from "./context/UserContext"; // ✅ Context is fine
 
 export default function App() {
-  return <Navigation />;
+  return (
+    <UserProvider>
+      <NavigationContainer>
+        <AppNavigator />
+      </NavigationContainer>
+    </UserProvider>
+  );
 }
