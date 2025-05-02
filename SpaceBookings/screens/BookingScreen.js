@@ -1,303 +1,229 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
-  TextInput,
   FlatList,
-  TouchableOpacity,
+  Image,
   StyleSheet,
-  Alert,
-  ScrollView,
+  TouchableOpacity,
+  Modal,
 } from "react-native";
-import MapView from "react-native-maps";
-import * as Location from "expo-location";
-import { Picker } from "@react-native-picker/picker";
-import { UserContext } from "../context/UserContext";
+import CheckBox from "@react-native-community/checkbox";
+import Icon from "react-native-vector-icons/MaterialIcons";
 
-// Generates a unique ID for each booking
-const generateId = () => Math.random().toString(36).substr(2, 9);
-
-// Details for each workspace category
-const spaceDetails = {
-  Desk: { price: "$10/hour", description: "Comfortable desk in open area" },
-  "Meeting Room": {
-    price: "$25/hour",
-    description: "Private room for meetings",
+// Mock data for featuredSpaces (replace this with the actual import from HomeScreen)
+const featuredSpaces = [
+  {
+    id: 1,
+    name: "Modern Desk",
+    category: "Desk",
+    location: "New York",
+    rating: 4.5,
+    image: "https://via.placeholder.com/100",
   },
-  "Private Office": {
-    price: "$40/hour",
-    description: "Secluded private office",
+  {
+    id: 2,
+    name: "Private Office",
+    category: "Private Office",
+    location: "San Francisco",
+    rating: 4.8,
+    image: "https://via.placeholder.com/100",
   },
-};
+  {
+    id: 3,
+    name: "Coworking Space",
+    category: "Coworking",
+    location: "Los Angeles",
+    rating: 4.2,
+    image: "https://via.placeholder.com/100",
+  },
+  {
+    id: 4,
+    name: "Meeting Room",
+    category: "Meeting Room",
+    location: "Chicago",
+    rating: 4.7,
+    image: "https://via.placeholder.com/100",
+  },
+];
 
 const BookingScreen = () => {
-  const { addBooking } = useContext(UserContext); // Access the addBooking function from context
-  const [workspaceName, setWorkspaceName] = useState(""); // State for workspace name
-  const [category, setCategory] = useState("Desk"); // State for selected category
-  const [notes, setNotes] = useState(""); // State for additional notes
-  const [selectedSlot, setSelectedSlot] = useState(null); // State for selected time slot
+  const [filterModalVisible, setFilterModalVisible] = useState(false);
+  const [selectedFilters, setSelectedFilters] = useState([]);
 
-  // List of available time slots
-  const timeSlots = [
-    "09:00",
-    "10:00",
-    "11:00",
-    "12:00",
-    "13:00",
-    "14:00",
-    "15:00",
-    "16:00",
-    "17:00",
-  ];
-
-  // List of already booked time slots
-  const bookedSlots = ["10:00", "13:00", "15:00"];
-
-  // State for user's current location
-  const [location, setLocation] = useState({
-    latitude: 37.7749,
-    longitude: -122.4194,
-    latitudeDelta: 0.0922,
-    longitudeDelta: 0.0421,
-  });
-
-  // Effect to request location permissions and fetch user's current location
-  useEffect(() => {
-    (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        Alert.alert("Permission Denied", "Location permission is required.");
-        return;
-      }
-      let currentLocation = await Location.getCurrentPositionAsync({});
-      setLocation((prev) => ({
-        ...prev,
-        latitude: currentLocation.coords.latitude,
-        longitude: currentLocation.coords.longitude,
-      }));
-    })();
-  }, []);
-  const confirmBooking = (paymentMethod) => {
-    const newBooking = {
-      id: generateId(),
-      workspaceName,
-      category,
-      price: spaceDetails[category].price,
-      description: spaceDetails[category].description,
-      date: new Date().toISOString().split("T")[0],
-      timeSlot: selectedSlot,
-      notes,
-      paymentMethod, // ✅ Save payment method too
-    };
-
-    addBooking(newBooking);
-
-    Alert.alert(
-      "Booking Confirmed",
-      `${workspaceName} booked at ${selectedSlot}`,
-      [
-        {
-          text: "Add to Google Calendar",
-          onPress: () => Alert.alert("Google Calendar", "Booking added (Demo)"),
-        },
-        { text: "OK" },
-      ]
+  // Toggle filter selection
+  const toggleFilter = (filter) => {
+    setSelectedFilters((prevFilters) =>
+      prevFilters.includes(filter)
+        ? prevFilters.filter((f) => f !== filter)
+        : [...prevFilters, filter]
     );
-
-    // Reset fields
-    setWorkspaceName("");
-    setCategory("Desk");
-    setNotes("");
-    setSelectedSlot(null);
   };
 
-  // Handles the booking process
-  const handleBooking = () => {
-    if (!workspaceName || !selectedSlot) {
-      Alert.alert("Missing Info", "Please enter all required fields.");
-      return;
-    }
+  // Filter workspaces based on selected filters
+  const filteredWorkspaces = featuredSpaces.filter((workspace) =>
+    selectedFilters.length > 0
+      ? selectedFilters.includes(workspace.category)
+      : true
+  );
 
-    // Create a new booking object
-    const newBooking = {
-      id: generateId(),
-      workspaceName,
-      category,
-      price: spaceDetails[category].price,
-      description: spaceDetails[category].description,
-      date: new Date().toISOString().split("T")[0],
-      timeSlot: selectedSlot,
-      notes,
-    };
-
-    addBooking(newBooking); // Add the booking to the context
-
-    // Show confirmation alert
-    Alert.alert(
-      "Booking Confirmed",
-      `${workspaceName} booked at ${selectedSlot}`,
-      [
-        {
-          text: "Add to Google Calendar",
-          onPress: () => Alert.alert("Google Calendar", "Booking added (Demo)"),
-        },
-        { text: "OK" },
-      ]
-    );
-
-    // Reset form fields
-    setWorkspaceName("");
-    setCategory("Desk");
-    setNotes("");
-    setSelectedSlot(null);
-  };
+  const renderWorkspace = ({ item }) => (
+    <View style={styles.workspaceContainer}>
+      <Image source={{ uri: item.image }} style={styles.workspaceImage} />
+      <View style={styles.workspaceInfo}>
+        <Text style={styles.workspaceName}>{item.name}</Text>
+        <Text style={styles.workspaceCategory}>{item.category}</Text>
+        <Text style={styles.workspaceLocation}>{item.location}</Text>
+        <Text style={styles.workspaceRating}>Rating: {item.rating}</Text>
+      </View>
+    </View>
+  );
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      {/* Title */}
-      <Text style={styles.title}>Book a Space</Text>
-
-      {/* Map showing user's location */}
-      <MapView style={styles.map} region={location} />
-
-      {/* Input for workspace name */}
-      <Text style={styles.label}>Workspace Name</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Enter workspace name"
-        value={workspaceName}
-        onChangeText={setWorkspaceName}
-      />
-
-      {/* Picker for selecting category */}
-      <Text style={styles.label}>Category</Text>
-      <Picker
-        selectedValue={category}
-        onValueChange={(itemValue) => setCategory(itemValue)}
-        style={styles.picker}
-      >
-        <Picker.Item label="Desk" value="Desk" />
-        <Picker.Item label="Meeting Room" value="Meeting Room" />
-        <Picker.Item label="Private Office" value="Private Office" />
-      </Picker>
-
-      {/* Display price and description for the selected category */}
-      <View style={styles.detailBox}>
-        <Text style={styles.detailText}>
-          Price: {spaceDetails[category].price}
-        </Text>
-        <Text style={styles.detailText}>
-          Info: {spaceDetails[category].description}
-        </Text>
+    <View style={styles.container}>
+      {/* Filter Button */}
+      <View style={styles.filterContainer}>
+        <TouchableOpacity
+          style={styles.filterButton}
+          onPress={() => setFilterModalVisible(true)}
+        >
+          <Icon name="filter-list" size={20} color="#fff" />
+          <Text style={styles.filterText}>Filter</Text>
+        </TouchableOpacity>
       </View>
 
-      {/* Input for additional notes */}
-      <Text style={styles.label}>Notes</Text>
-      <TextInput
-        style={[styles.input, styles.notesInput]}
-        placeholder="Add any additional notes"
-        value={notes}
-        onChangeText={setNotes}
-        multiline
-      />
-
-      {/* Section for selecting a time slot */}
-      <Text style={styles.sectionTitle}>Select a Time Slot</Text>
-      <FlatList
-        data={timeSlots}
-        renderItem={({ item }) => {
-          const isBooked = bookedSlots.includes(item); // Check if the slot is already booked
-          const isSelected = selectedSlot === item; // Check if the slot is selected
-          return (
+      {/* Filter Modal */}
+      <Modal
+        visible={filterModalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setFilterModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Select Filters</Text>
+            {["Desk", "Meeting Room", "Private Office", "Coworking"].map(
+              (filter) => (
+                <View key={filter} style={styles.filterOption}>
+                  <CheckBox
+                    value={selectedFilters.includes(filter)}
+                    onValueChange={() => toggleFilter(filter)}
+                  />
+                  <Text style={styles.filterLabel}>{filter}</Text>
+                </View>
+              )
+            )}
             <TouchableOpacity
-              style={[
-                styles.timeSlot,
-                isBooked && styles.bookedSlot,
-                isSelected && styles.selectedSlot,
-              ]}
-              onPress={() => {
-                if (isBooked) {
-                  Alert.alert("This slot is already booked");
-                } else {
-                  setSelectedSlot(item);
-                }
-              }}
-              disabled={isBooked} // Disable button if the slot is booked
+              style={styles.applyButton}
+              onPress={() => setFilterModalVisible(false)}
             >
-              <Text
-                style={[styles.timeSlotText, isBooked && styles.bookedSlotText]}
-              >
-                {item}
-              </Text>
+              <Text style={styles.applyButtonText}>Apply Filters</Text>
             </TouchableOpacity>
-          );
-        }}
-        keyExtractor={(item) => item}
-        horizontal
-        contentContainerStyle={styles.timeSlotList}
-        showsHorizontalScrollIndicator={false}
-      />
+          </View>
+        </View>
+      </Modal>
 
-      {/* Button to confirm booking */}
-      <TouchableOpacity style={styles.bookButton} onPress={handleBooking}>
-        <Text style={styles.bookButtonText}>Book Now</Text>
-      </TouchableOpacity>
-    </ScrollView>
+      {/* Filtered Workspaces */}
+      <FlatList
+        data={filteredWorkspaces}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={renderWorkspace}
+      />
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { padding: 20, backgroundColor: "#fff", paddingBottom: 40 },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 15,
-    textAlign: "center",
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+    padding: 16,
   },
-  map: { height: 180, borderRadius: 10, marginBottom: 20 },
-  label: { fontSize: 16, fontWeight: "500", marginBottom: 5, marginTop: 15 },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    padding: 10,
-    borderRadius: 5,
-    fontSize: 16,
-    backgroundColor: "#f9f9f9",
+  filterContainer: {
+    marginBottom: 16,
+    alignItems: "flex-end",
   },
-  picker: { backgroundColor: "#f9f9f9", borderRadius: 5 },
-  detailBox: {
-    backgroundColor: "#eef6fd",
-    padding: 10,
-    borderRadius: 5,
-    marginTop: 10,
-  },
-  detailText: { fontSize: 14, color: "#555" },
-  notesInput: { height: 80, textAlignVertical: "top", marginTop: 5 },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginTop: 20,
-    marginBottom: 10,
-  },
-  timeSlotList: { marginBottom: 20 },
-  timeSlot: {
-    padding: 10,
-    backgroundColor: "#eee",
-    borderRadius: 20,
-    marginRight: 10,
-  },
-  bookedSlot: { backgroundColor: "#ccc" },
-  selectedSlot: { backgroundColor: "#007bff" },
-  timeSlotText: { fontSize: 16, color: "#333" },
-  bookedSlotText: { color: "#888", textDecorationLine: "line-through" },
-  bookButton: {
-    backgroundColor: "#28a745",
-    padding: 15,
-    borderRadius: 10,
+  filterButton: {
+    flexDirection: "row",
     alignItems: "center",
-    marginTop: 10,
+    backgroundColor: "#007BFF",
+    padding: 10,
+    borderRadius: 8,
   },
-  bookButtonText: { color: "#fff", fontSize: 18, fontWeight: "bold" },
+  filterText: {
+    color: "#fff",
+    marginLeft: 8,
+  },
+  workspaceContainer: {
+    flexDirection: "row",
+    marginBottom: 16,
+    backgroundColor: "#f9f9f9",
+    borderRadius: 8,
+    overflow: "hidden",
+  },
+  workspaceImage: {
+    width: 100,
+    height: 100,
+  },
+  workspaceInfo: {
+    flex: 1,
+    padding: 8,
+  },
+  workspaceName: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  workspaceCategory: {
+    fontSize: 14,
+    color: "#666",
+  },
+  workspaceLocation: {
+    fontSize: 14,
+    color: "#007BFF",
+    marginTop: 4,
+  },
+  workspaceRating: {
+    fontSize: 14,
+    color: "#28a745",
+    marginTop: 4,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
+    width: "80%",
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    padding: 16,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 16,
+  },
+  filterOption: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  filterLabel: {
+    marginLeft: 8,
+    fontSize: 16,
+  },
+  applyButton: {
+    marginTop: 16,
+    backgroundColor: "#007BFF",
+    padding: 10,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  applyButtonText: {
+    color: "#fff",
+    fontSize: 16,
+  },
 });
 
 export default BookingScreen;
