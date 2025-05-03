@@ -5,6 +5,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useNavigation } from "@react-navigation/native";
 import { UserContext } from "../context/UserContext"; // ✅ Import User Context
+import { SafeAreaView } from "react-native-safe-area-context";
 
 // Screens
 const LoginScreen = ({ navigation }) => {

@@ -12,54 +12,16 @@ import {
 import { FontAwesome } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { UserContext } from "../context/UserContext";
-
-export const featuredSpaces = [
-  {
-    id: "1",
-    name: "Downtown Desk",
-    category: "Desk",
-    location: "Portsmouth",
-    rating: 4.5,
-    image: "https://images.unsplash.com/photo-1581092917349-7c74c3d6f351",
-  },
-  {
-    id: "2",
-    name: "Ocean View Meeting",
-    category: "Meeting Room",
-    location: "Southampton",
-    rating: 4.0,
-    image: "https://images.unsplash.com/photo-1524758631624-e2822e304c36",
-  },
-  {
-    id: "3",
-    name: "Startup Hub Office",
-    category: "Private Office",
-    location: "Portsmouth",
-    rating: 5.0,
-    image: "https://images.unsplash.com/photo-1553877522-43269d4ea984",
-  },
-  {
-    id: "4",
-    name: "City Center Workspace",
-    category: "Coworking",
-    location: "Southampton",
-    rating: 4.8,
-    image: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d",
-  },
-];
+import { featuredSpaces } from "../data/spaces";
 
 const HomeScreen = () => {
   const { user } = useContext(UserContext);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedLocation, setSelectedLocation] = useState(null);
+  const navigation = useNavigation();
 
   const filteredSpaces = featuredSpaces.filter((space) =>
     space.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
-
-  const handleLocationSelect = (location) => {
-    setSelectedLocation(location);
-  };
 
   return (
     <ScrollView style={styles.container}>
@@ -68,12 +30,10 @@ const HomeScreen = () => {
           Welcome, {user?.firstName} {user?.lastName}!
         </Text>
         <Text style={styles.subText}>
-          Find your perfect coworking space in{" "}
-          {selectedLocation ? selectedLocation + ", England" : "England"}.
+          Find your perfect coworking space in England.
         </Text>
       </View>
 
-      {/* Search Bar */}
       <View style={styles.searchBar}>
         <TextInput
           style={styles.searchInput}
@@ -83,7 +43,7 @@ const HomeScreen = () => {
         />
         {searchQuery.length > 0 && (
           <FlatList
-            data={filteredSpaces.slice(0, 3)} // Show only the first 3 results
+            data={filteredSpaces.slice(0, 3)}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
               <View style={styles.searchResultCard}>
@@ -102,11 +62,10 @@ const HomeScreen = () => {
         )}
       </View>
 
-      {/* Search Options */}
       <View style={styles.searchOptions}>
         <TouchableOpacity
           style={styles.iconButton}
-          onPress={() => handleLocationSelect("Portsmouth")}
+          onPress={() => navigation.navigate("Booking", { category: "Desk" })}
         >
           <Image
             source={{
@@ -118,7 +77,9 @@ const HomeScreen = () => {
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.iconButton}
-          onPress={() => handleLocationSelect("Southampton")}
+          onPress={() =>
+            navigation.navigate("Booking", { category: "Meeting Room" })
+          }
         >
           <Image
             source={{
@@ -130,7 +91,9 @@ const HomeScreen = () => {
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.iconButton}
-          onPress={() => handleLocationSelect("Portsmouth")}
+          onPress={() =>
+            navigation.navigate("Booking", { category: "Private Office" })
+          }
         >
           <Image
             source={{
@@ -142,13 +105,11 @@ const HomeScreen = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Featured Spaces */}
       <View style={styles.featuredSpaces}>
         <Text style={styles.sectionTitle}>Featured Spaces</Text>
         <FlatList
           data={featuredSpaces}
           horizontal
-          showsHorizontalScrollIndicator={false}
           keyExtractor={(item, index) => index.toString()}
           renderItem={({ item }) => (
             <View style={styles.spaceCard}>
@@ -181,12 +142,9 @@ const styles = StyleSheet.create({
     padding: 20,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
+    paddingTop: 60, // for iPhone notch
   },
-  welcomeText: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#fff",
-  },
+  welcomeText: { fontSize: 24, fontWeight: "bold", color: "#fff" },
   subText: { fontSize: 16, color: "#fff", marginTop: 5 },
   searchBar: {
     padding: 20,
@@ -207,10 +165,6 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 10,
     marginBottom: 10,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 3,
   },
   resultImage: { width: 50, height: 50, borderRadius: 10, marginRight: 10 },
   resultTextContainer: { flex: 1 },
@@ -245,14 +199,11 @@ const styles = StyleSheet.create({
     padding: 10,
     marginRight: 10,
     width: 150,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 3,
   },
   spaceImage: { width: "100%", height: 100, borderRadius: 10 },
   spaceName: { fontSize: 16, fontWeight: "bold", marginTop: 5 },
   spaceCategory: { fontSize: 14, color: "#888" },
+  spaceLocation: { fontSize: 14, color: "#007BFF" },
   ratingContainer: { flexDirection: "row", marginTop: 5 },
 });
 

@@ -7,10 +7,10 @@ import {
   StyleSheet,
   Alert,
 } from "react-native";
-import { UserContext } from "../context/UserContext"; // Access shared context
+import { UserContext } from "../context/UserContext";
 
 const MyBookingsScreen = () => {
-  const { bookings, removeBooking } = useContext(UserContext); // Get bookings and remove function
+  const { bookings, removeBooking } = useContext(UserContext);
 
   const handleCancelBooking = (id) => {
     Alert.alert(
@@ -28,10 +28,8 @@ const MyBookingsScreen = () => {
       <Text style={styles.workspaceName}>{item.workspaceName}</Text>
       <Text style={styles.details}>Category: {item.category}</Text>
       <Text style={styles.details}>Date: {item.date}</Text>
-      <Text style={styles.details}>Time Slot: {item.timeSlot}</Text>
-      {item.notes ? (
-        <Text style={styles.details}>Notes: {item.notes}</Text>
-      ) : null}
+      <Text style={styles.details}>Time: {item.timeSlot}</Text>
+
       <TouchableOpacity
         style={styles.cancelButton}
         onPress={() => handleCancelBooking(item.id)}

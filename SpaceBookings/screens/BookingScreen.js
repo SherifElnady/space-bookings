@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -7,51 +7,29 @@ import {
   StyleSheet,
   TouchableOpacity,
   Modal,
+  SafeAreaView,
 } from "react-native";
-import CheckBox from "@react-native-community/checkbox";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import { featuredSpaces } from "../data/spaces";
+import CheckBox from "expo-checkbox";
 import Icon from "react-native-vector-icons/MaterialIcons";
 
-// Mock data for featuredSpaces (replace this with the actual import from HomeScreen)
-const featuredSpaces = [
-  {
-    id: 1,
-    name: "Modern Desk",
-    category: "Desk",
-    location: "New York",
-    rating: 4.5,
-    image: "https://via.placeholder.com/100",
-  },
-  {
-    id: 2,
-    name: "Private Office",
-    category: "Private Office",
-    location: "San Francisco",
-    rating: 4.8,
-    image: "https://via.placeholder.com/100",
-  },
-  {
-    id: 3,
-    name: "Coworking Space",
-    category: "Coworking",
-    location: "Los Angeles",
-    rating: 4.2,
-    image: "https://via.placeholder.com/100",
-  },
-  {
-    id: 4,
-    name: "Meeting Room",
-    category: "Meeting Room",
-    location: "Chicago",
-    rating: 4.7,
-    image: "https://via.placeholder.com/100",
-  },
-];
-
 const BookingScreen = () => {
-  const [filterModalVisible, setFilterModalVisible] = useState(false);
-  const [selectedFilters, setSelectedFilters] = useState([]);
+  const navigation = useNavigation();
+  const route = useRoute();
+  const initialCategory = route?.params?.category || null;
 
-  // Toggle filter selection
+  const [filterModalVisible, setFilterModalVisible] = useState(false);
+  const [selectedFilters, setSelectedFilters] = useState(
+    initialCategory ? [initialCategory] : []
+  );
+
+  useEffect(() => {
+    if (initialCategory) {
+      setSelectedFilters([initialCategory]);
+    }
+  }, [initialCategory]);
+
   const toggleFilter = (filter) => {
     setSelectedFilters((prevFilters) =>
       prevFilters.includes(filter)
@@ -60,7 +38,6 @@ const BookingScreen = () => {
     );
   };
 
-  // Filter workspaces based on selected filters
   const filteredWorkspaces = featuredSpaces.filter((workspace) =>
     selectedFilters.length > 0
       ? selectedFilters.includes(workspace.category)
@@ -68,7 +45,10 @@ const BookingScreen = () => {
   );
 
   const renderWorkspace = ({ item }) => (
-    <View style={styles.workspaceContainer}>
+    <TouchableOpacity
+      style={styles.workspaceContainer}
+      onPress={() => navigation.navigate("WorkSpace", { space: item })}
+    >
       <Image source={{ uri: item.image }} style={styles.workspaceImage} />
       <View style={styles.workspaceInfo}>
         <Text style={styles.workspaceName}>{item.name}</Text>
@@ -76,12 +56,11 @@ const BookingScreen = () => {
         <Text style={styles.workspaceLocation}>{item.location}</Text>
         <Text style={styles.workspaceRating}>Rating: {item.rating}</Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   return (
-    <View style={styles.container}>
-      {/* Filter Button */}
+    <SafeAreaView style={styles.container}>
       <View style={styles.filterContainer}>
         <TouchableOpacity
           style={styles.filterButton}
@@ -92,7 +71,6 @@ const BookingScreen = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Filter Modal */}
       <Modal
         visible={filterModalVisible}
         animationType="slide"
@@ -123,26 +101,18 @@ const BookingScreen = () => {
         </View>
       </Modal>
 
-      {/* Filtered Workspaces */}
       <FlatList
         data={filteredWorkspaces}
         keyExtractor={(item) => item.id.toString()}
         renderItem={renderWorkspace}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    padding: 16,
-  },
-  filterContainer: {
-    marginBottom: 16,
-    alignItems: "flex-end",
-  },
+  container: { flex: 1, backgroundColor: "#fff", padding: 16 },
+  filterContainer: { marginBottom: 16, alignItems: "flex-end" },
   filterButton: {
     flexDirection: "row",
     alignItems: "center",
@@ -150,10 +120,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 8,
   },
-  filterText: {
-    color: "#fff",
-    marginLeft: 8,
-  },
+  filterText: { color: "#fff", marginLeft: 8 },
   workspaceContainer: {
     flexDirection: "row",
     marginBottom: 16,
@@ -161,22 +128,10 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     overflow: "hidden",
   },
-  workspaceImage: {
-    width: 100,
-    height: 100,
-  },
-  workspaceInfo: {
-    flex: 1,
-    padding: 8,
-  },
-  workspaceName: {
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  workspaceCategory: {
-    fontSize: 14,
-    color: "#666",
-  },
+  workspaceImage: { width: 100, height: 100 },
+  workspaceInfo: { flex: 1, padding: 8 },
+  workspaceName: { fontSize: 16, fontWeight: "bold" },
+  workspaceCategory: { fontSize: 14, color: "#666" },
   workspaceLocation: {
     fontSize: 14,
     color: "#007BFF",
