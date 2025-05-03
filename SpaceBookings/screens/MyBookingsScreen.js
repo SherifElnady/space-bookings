@@ -25,10 +25,12 @@ const MyBookingsScreen = () => {
 
   const renderBookingItem = ({ item }) => (
     <View style={styles.bookingItem}>
-      <Text style={styles.workspaceName}>{item.workspaceName}</Text>
+      <Text style={styles.workspaceName}>{item.spaceName}</Text>
       <Text style={styles.details}>Category: {item.category}</Text>
-      <Text style={styles.details}>Date: {item.date}</Text>
-      <Text style={styles.details}>Time: {item.timeSlot}</Text>
+      <Text style={styles.details}>
+        Date: {new Date(item.date).toDateString()}
+      </Text>
+      <Text style={styles.details}>Time: {item.time}</Text>
 
       <TouchableOpacity
         style={styles.cancelButton}

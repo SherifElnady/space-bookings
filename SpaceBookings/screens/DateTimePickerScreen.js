@@ -1,96 +1,159 @@
-import React, { useContext, useState } from "react";
+import React, { useState, useContext } from "react";
 import {
   View,
   Text,
-  Button,
-  FlatList,
   TouchableOpacity,
+  ScrollView,
   StyleSheet,
 } from "react-native";
-import { useNavigation, useRoute } from "@react-navigation/native";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { generateTimeSlots } from "../utils/timeSlots";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { UserContext } from "../context/UserContext";
 
+const generateTimeSlots = () => {
+  const slots = [];
+  const start = 8; // 8 AM
+  const end = 20; // 8 PM
+  for (let i = start; i < end; i++) {
+    slots.push(`${i}:00`);
+    slots.push(`${i}:30`);
+  }
+  return slots;
+};
+
 export default function DateTimePickerScreen() {
-  const { addBooking, isTimeSlotAvailable } = useContext(UserContext);
   const navigation = useNavigation();
   const route = useRoute();
   const { space } = route.params;
+  const { bookings, addBooking } = useContext(UserContext);
 
   const [date, setDate] = useState(new Date());
+  const [showPicker, setShowPicker] = useState(false);
   const [selectedTime, setSelectedTime] = useState(null);
 
-  const onBook = () => {
-    if (!selectedTime) return alert("Select a time");
+  const timeSlots = generateTimeSlots();
 
-    const booking = {
+  const bookedTimes = bookings
+    .filter(
+      (b) =>
+        b.spaceId === space.id &&
+        new Date(b.date).toDateString() === date.toDateString()
+    )
+    .map((b) => b.time);
+
+  const handleBook = () => {
+    if (!selectedTime) return;
+    const newBooking = {
       id: Date.now().toString(),
-      workspaceId: space.id,
-      workspaceName: space.name,
-      category: space.category,
-      date: date.toISOString().split("T")[0],
-      timeSlot: selectedTime,
+      spaceId: space.id,
+      spaceName: space.name,
+      location: space.location,
+      date: date.toISOString(),
+      time: selectedTime,
     };
-
-    addBooking(booking);
-    navigation.navigate("MyBookings");
+    addBooking(newBooking);
+    navigation.navigate("MainTabs", { screen: "MyBookings" }); // ✅ Fixed navigation
   };
 
-  const slots = generateTimeSlots();
-  const selectedDate = date.toISOString().split("T")[0];
-
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Choose a Date</Text>
-      <DateTimePicker
-        value={date}
-        mode="date"
-        onChange={(e, d) => d && setDate(d)}
-      />
+    <ScrollView contentContainerStyle={styles.container}>
+      <Text style={styles.title}>Choose a Date and Time</Text>
 
-      <Text style={styles.title}>Choose Time</Text>
-      <FlatList
-        data={slots}
-        keyExtractor={(item) => item}
-        renderItem={({ item }) => {
-          const isAvailable = isTimeSlotAvailable(space.id, selectedDate, item);
+      <TouchableOpacity
+        onPress={() => setShowPicker(true)}
+        style={styles.dateButton}
+      >
+        <Text style={styles.dateText}>{date.toDateString()}</Text>
+      </TouchableOpacity>
+
+      {showPicker && (
+        <DateTimePicker
+          value={date}
+          mode="date"
+          display="default"
+          onChange={(event, selectedDate) => {
+            setShowPicker(false);
+            if (selectedDate) setDate(selectedDate);
+          }}
+        />
+      )}
+
+      <Text style={styles.subtitle}>Available Time Slots</Text>
+      <View style={styles.slotContainer}>
+        {timeSlots.map((slot, index) => {
+          const isBooked = bookedTimes.includes(slot);
           return (
             <TouchableOpacity
+              key={index}
+              disabled={isBooked}
               style={[
-                styles.slot,
-                {
-                  backgroundColor: !isAvailable
-                    ? "#ccc"
-                    : selectedTime === item
-                    ? "#4A90E2"
-                    : "#eee",
-                },
+                styles.timeSlot,
+                selectedTime === slot && styles.selectedSlot,
+                isBooked && styles.bookedSlot,
               ]}
-              disabled={!isAvailable}
-              onPress={() => setSelectedTime(item)}
+              onPress={() => setSelectedTime(slot)}
             >
-              <Text style={styles.slotText}>
-                {item} {isAvailable ? "" : "(Booked)"}
+              <Text
+                style={{
+                  color: isBooked
+                    ? "#999"
+                    : selectedTime === slot
+                    ? "#fff"
+                    : "#000",
+                }}
+              >
+                {slot}
               </Text>
             </TouchableOpacity>
           );
-        }}
-      />
+        })}
+      </View>
 
-      <Button title="Book" onPress={onBook} color="#4A90E2" />
-    </View>
+      <TouchableOpacity
+        style={[styles.bookButton, !selectedTime && { opacity: 0.5 }]}
+        disabled={!selectedTime}
+        onPress={handleBook}
+      >
+        <Text style={styles.bookButtonText}>Confirm Booking</Text>
+      </TouchableOpacity>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#fff" },
-  title: { fontSize: 18, fontWeight: "bold", marginVertical: 10 },
-  slot: {
-    padding: 10,
+  container: { padding: 20, backgroundColor: "#fff" },
+  title: { fontSize: 22, fontWeight: "bold", marginBottom: 16 },
+  subtitle: { fontSize: 18, fontWeight: "600", marginVertical: 12 },
+  dateButton: {
+    padding: 12,
+    backgroundColor: "#eee",
     borderRadius: 8,
-    marginVertical: 4,
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  dateText: { fontSize: 16 },
+  slotContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
+    justifyContent: "flex-start",
+  },
+  timeSlot: {
+    padding: 10,
+    borderRadius: 6,
+    backgroundColor: "#f0f0f0",
+    marginBottom: 10,
+    minWidth: 70,
     alignItems: "center",
   },
-  slotText: { fontSize: 16 },
+  selectedSlot: { backgroundColor: "#007BFF" },
+  bookedSlot: { backgroundColor: "#ddd" },
+  bookButton: {
+    backgroundColor: "#007BFF",
+    padding: 14,
+    marginTop: 30,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  bookButtonText: { color: "#fff", fontWeight: "bold" },
 });

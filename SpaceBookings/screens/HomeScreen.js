@@ -25,186 +25,191 @@ const HomeScreen = () => {
 
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.heroBanner}>
-        <Text style={styles.welcomeText}>
-          Welcome, {user?.firstName} {user?.lastName}!
+      {/* Welcome Banner */}
+      <View style={styles.banner}>
+        <Text style={styles.welcome}>
+          Welcome, {user?.firstName} {user?.lastName} 👋
         </Text>
-        <Text style={styles.subText}>
-          Find your perfect coworking space in England.
+        <Text style={styles.subtitle}>
+          Book desks, offices or meeting rooms anywhere in England.
         </Text>
-      </View>
-
-      <View style={styles.searchBar}>
         <TextInput
-          style={styles.searchInput}
-          placeholder="Search for workspaces..."
+          style={styles.searchBox}
+          placeholder="🔍 Search workspaces..."
           value={searchQuery}
           onChangeText={setSearchQuery}
         />
-        {searchQuery.length > 0 && (
+      </View>
+
+      {/* Search Results Dropdown */}
+      {searchQuery.length > 0 && (
+        <View style={styles.dropdown}>
           <FlatList
             data={filteredSpaces.slice(0, 3)}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
-              <View style={styles.searchResultCard}>
+              <TouchableOpacity
+                style={styles.resultCard}
+                onPress={() =>
+                  navigation.navigate("WorkSpace", { space: item })
+                }
+              >
                 <Image
                   source={{ uri: item.image }}
                   style={styles.resultImage}
                 />
-                <View style={styles.resultTextContainer}>
+                <View style={styles.resultText}>
                   <Text style={styles.resultName}>{item.name}</Text>
-                  <Text style={styles.resultCategory}>{item.category}</Text>
-                  <Text style={styles.resultLocation}>{item.location}</Text>
+                  <Text style={styles.resultSub}>
+                    {item.category} · {item.location}
+                  </Text>
                 </View>
-              </View>
+              </TouchableOpacity>
             )}
           />
-        )}
+        </View>
+      )}
+
+      {/* Quick Book Categories */}
+      <Text style={styles.sectionLabel}>Quick Book</Text>
+      <View style={styles.categories}>
+        {[
+          {
+            label: "Desk",
+            uri: "https://images.unsplash.com/photo-1593642634367-d91a135587b5", // ✅ new matching image
+          },
+          {
+            label: "Meeting Room",
+            uri: "https://images.unsplash.com/photo-1524758631624-e2822e304c36",
+          },
+          {
+            label: "Private Office",
+            uri: "https://images.unsplash.com/photo-1553877522-43269d4ea984",
+          },
+        ].map((option) => (
+          <TouchableOpacity
+            key={option.label}
+            style={styles.categoryCard}
+            onPress={() =>
+              navigation.navigate("Booking", { category: option.label })
+            }
+          >
+            <Image source={{ uri: option.uri }} style={styles.categoryImage} />
+            <Text style={styles.categoryText}>{option.label}</Text>
+          </TouchableOpacity>
+        ))}
       </View>
 
-      <View style={styles.searchOptions}>
-        <TouchableOpacity
-          style={styles.iconButton}
-          onPress={() => navigation.navigate("Booking", { category: "Desk" })}
-        >
-          <Image
-            source={{
-              uri: "https://cdn.pixabay.com/photo/2016/11/29/03/53/desk-1867761_1280.jpg",
-            }}
-            style={styles.iconImage}
-          />
-          <Text style={styles.iconText}>Desk</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.iconButton}
-          onPress={() =>
-            navigation.navigate("Booking", { category: "Meeting Room" })
-          }
-        >
-          <Image
-            source={{
-              uri: "https://images.unsplash.com/photo-1524758631624-e2822e304c36",
-            }}
-            style={styles.iconImage}
-          />
-          <Text style={styles.iconText}>Meeting Room</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.iconButton}
-          onPress={() =>
-            navigation.navigate("Booking", { category: "Private Office" })
-          }
-        >
-          <Image
-            source={{
-              uri: "https://images.unsplash.com/photo-1553877522-43269d4ea984",
-            }}
-            style={styles.iconImage}
-          />
-          <Text style={styles.iconText}>Private Office</Text>
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.featuredSpaces}>
-        <Text style={styles.sectionTitle}>Featured Spaces</Text>
-        <FlatList
-          data={featuredSpaces}
-          horizontal
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={({ item }) => (
-            <View style={styles.spaceCard}>
-              <Image source={{ uri: item.image }} style={styles.spaceImage} />
-              <Text style={styles.spaceName}>{item.name}</Text>
-              <Text style={styles.spaceCategory}>{item.category}</Text>
-              <Text style={styles.spaceLocation}>{item.location}</Text>
-              <View style={styles.ratingContainer}>
-                {Array.from({ length: 5 }, (_, index) => (
-                  <FontAwesome
-                    key={index}
-                    name="star"
-                    size={16}
-                    color={index < Math.floor(item.rating) ? "gold" : "#ccc"}
-                  />
-                ))}
-              </View>
+      {/* Featured Spaces */}
+      <Text style={styles.sectionLabel}>Featured Spaces</Text>
+      <FlatList
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        data={featuredSpaces}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.featuredList}
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            style={styles.featuredCard}
+            onPress={() => navigation.navigate("WorkSpace", { space: item })}
+          >
+            <Image source={{ uri: item.image }} style={styles.featuredImage} />
+            <Text style={styles.featuredName}>{item.name}</Text>
+            <Text style={styles.featuredSub}>
+              {item.category} · {item.location}
+            </Text>
+            <View style={styles.ratingRow}>
+              {Array.from({ length: 5 }, (_, i) => (
+                <FontAwesome
+                  key={i}
+                  name="star"
+                  size={14}
+                  color={i < Math.floor(item.rating) ? "#FFD700" : "#ccc"}
+                />
+              ))}
             </View>
-          )}
-        />
-      </View>
+          </TouchableOpacity>
+        )}
+      />
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f5f5f5" },
-  heroBanner: {
-    backgroundColor: "#4A90E2",
-    padding: 20,
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
-    paddingTop: 60, // for iPhone notch
+  container: { flex: 1, backgroundColor: "#f9f9f9" },
+  banner: {
+    backgroundColor: "#3A7BD5",
+    padding: 24,
+    paddingTop: 60,
+    borderBottomLeftRadius: 25,
+    borderBottomRightRadius: 25,
   },
-  welcomeText: { fontSize: 24, fontWeight: "bold", color: "#fff" },
-  subText: { fontSize: 16, color: "#fff", marginTop: 5 },
-  searchBar: {
-    padding: 20,
-    backgroundColor: "#fff",
-    borderBottomWidth: 1,
-    borderBottomColor: "#ddd",
-  },
-  searchInput: {
-    backgroundColor: "#f0f0f0",
-    padding: 10,
-    borderRadius: 10,
-    marginBottom: 10,
-  },
-  searchResultCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#fff",
-    padding: 10,
-    borderRadius: 10,
-    marginBottom: 10,
-  },
-  resultImage: { width: 50, height: 50, borderRadius: 10, marginRight: 10 },
-  resultTextContainer: { flex: 1 },
-  resultName: { fontSize: 16, fontWeight: "bold" },
-  resultCategory: { fontSize: 14, color: "#888" },
-  searchOptions: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 20,
-    paddingHorizontal: 20,
-  },
-  iconButton: {
-    alignItems: "center",
-    flex: 1,
-    marginHorizontal: 5,
-  },
-  iconImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 10,
-    marginBottom: 5,
-  },
-  iconText: {
-    fontSize: 14,
+  welcome: {
+    color: "#fff",
+    fontSize: 22,
     fontWeight: "bold",
+    marginBottom: 4,
+  },
+  subtitle: { color: "#e6e6e6", fontSize: 14, marginBottom: 15 },
+  searchBox: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    fontSize: 16,
+  },
+  dropdown: { backgroundColor: "#fff", paddingHorizontal: 20 },
+  resultCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 10,
+    borderBottomColor: "#eee",
+    borderBottomWidth: 1,
+  },
+  resultImage: { width: 50, height: 50, borderRadius: 8, marginRight: 12 },
+  resultText: { flex: 1 },
+  resultName: { fontWeight: "600", fontSize: 15 },
+  resultSub: { fontSize: 13, color: "#888" },
+  sectionLabel: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginTop: 25,
+    marginHorizontal: 20,
+    marginBottom: 10,
+  },
+  categories: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    paddingHorizontal: 10,
+  },
+  categoryCard: { alignItems: "center", flex: 1, marginHorizontal: 5 },
+  categoryImage: {
+    width: 85,
+    height: 85,
+    borderRadius: 12,
+    marginBottom: 6,
+  },
+  categoryText: {
+    fontSize: 13,
+    fontWeight: "600",
     textAlign: "center",
   },
-  featuredSpaces: { padding: 20 },
-  spaceCard: {
+  featuredList: { paddingHorizontal: 20 },
+  featuredCard: {
     backgroundColor: "#fff",
-    borderRadius: 10,
-    padding: 10,
-    marginRight: 10,
-    width: 150,
+    borderRadius: 14,
+    padding: 12,
+    marginRight: 15,
+    width: 160,
+    shadowColor: "#000",
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    elevation: 2,
   },
-  spaceImage: { width: "100%", height: 100, borderRadius: 10 },
-  spaceName: { fontSize: 16, fontWeight: "bold", marginTop: 5 },
-  spaceCategory: { fontSize: 14, color: "#888" },
-  spaceLocation: { fontSize: 14, color: "#007BFF" },
-  ratingContainer: { flexDirection: "row", marginTop: 5 },
+  featuredImage: { width: "100%", height: 100, borderRadius: 10 },
+  featuredName: { fontSize: 16, fontWeight: "bold", marginTop: 6 },
+  featuredSub: { fontSize: 13, color: "#777" },
+  ratingRow: { flexDirection: "row", marginTop: 4 },
 });
 
 export default HomeScreen;

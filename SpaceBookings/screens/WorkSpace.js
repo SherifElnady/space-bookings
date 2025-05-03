@@ -16,7 +16,10 @@ export default function WorkSpace() {
   const { space } = route.params;
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: "#fff" }}>
+    <ScrollView
+      style={{ flex: 1, backgroundColor: "#fff" }}
+      contentContainerStyle={{ paddingBottom: 100 }}
+    >
       {/* Header Image */}
       <View style={styles.imageContainer}>
         <Image source={{ uri: space.image }} style={styles.headerImage} />
@@ -34,6 +37,17 @@ export default function WorkSpace() {
         <Text style={styles.priceText}>Best Price</Text>
         <Text style={styles.titleText}>{space.name}</Text>
         <Text style={styles.closedText}>Today - Open</Text>
+
+        <View style={{ flexDirection: "row", marginVertical: 4 }}>
+          {Array.from({ length: 5 }, (_, index) => (
+            <Ionicons
+              key={index}
+              name="star"
+              size={16}
+              color={index < Math.floor(space.rating) ? "gold" : "#ccc"}
+            />
+          ))}
+        </View>
 
         <TouchableOpacity style={styles.discountBox}>
           <Text style={styles.discountText}>
@@ -89,6 +103,16 @@ export default function WorkSpace() {
           <TouchableOpacity>
             <Text style={styles.viewAllLink}>View all amenities (19)</Text>
           </TouchableOpacity>
+        </View>
+
+        {/* Availability Info */}
+        <View style={{ marginTop: 16 }}>
+          <Text style={{ fontWeight: "bold", fontSize: 16 }}>
+            Availability Today:
+          </Text>
+          <Text style={{ color: "#4caf50", marginTop: 4 }}>
+            9 time slots available
+          </Text>
         </View>
 
         {/* Map Placeholder */}

@@ -5,7 +5,7 @@ export const featuredSpaces = [
     category: "Desk",
     location: "Portsmouth",
     rating: 4.5,
-    image: "https://images.unsplash.com/photo-1581092917349-7c74c3d6f351",
+    image: "https://images.unsplash.com/photo-1593642634367-d91a135587b5", // ✅ New image
   },
   {
     id: "2",
