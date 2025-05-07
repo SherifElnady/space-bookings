@@ -2,14 +2,14 @@ import React, { useContext, useState } from "react";
 import {
   View,
   Text,
-  ScrollView,
   TouchableOpacity,
   StyleSheet,
   Alert,
-  Image,
+  ScrollView,
 } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { UserContext } from "../context/UserContext";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function BookingConfirmationScreen() {
   const navigation = useNavigation();
@@ -31,7 +31,7 @@ export default function BookingConfirmationScreen() {
       spaceName: space.name,
       location: space.location,
       category: space.category,
-      date: date,
+      date,
       time,
       paymentOption: selectedOption,
       status: "Confirmed",
@@ -43,70 +43,69 @@ export default function BookingConfirmationScreen() {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Confirm Your Booking</Text>
+    <SafeAreaView style={styles.safeArea}>
+      <ScrollView contentContainerStyle={styles.container}>
+        <Text style={styles.title}>Confirm Your Booking</Text>
 
-      <View style={styles.card}>
-        <Text style={styles.label}>Workspace:</Text>
-        <Text style={styles.value}>{space.name}</Text>
+        <View style={styles.card}>
+          <Text style={styles.label}>Workspace:</Text>
+          <Text style={styles.value}>{space.name}</Text>
 
-        <Text style={styles.label}>Location:</Text>
-        <Text style={styles.value}>{space.location}</Text>
+          <Text style={styles.label}>Location:</Text>
+          <Text style={styles.value}>{space.location}</Text>
 
-        <Text style={styles.label}>Date:</Text>
-        <Text style={styles.value}>{new Date(date).toDateString()}</Text>
+          <Text style={styles.label}>Date:</Text>
+          <Text style={styles.value}>{new Date(date).toDateString()}</Text>
 
-        <Text style={styles.label}>Time:</Text>
-        <Text style={styles.value}>{time}</Text>
+          <Text style={styles.label}>Time:</Text>
+          <Text style={styles.value}>{time}</Text>
 
-        <Text style={styles.label}>Price:</Text>
-        <Text style={styles.value}>£100</Text>
+          <Text style={styles.label}>Price:</Text>
+          <Text style={styles.value}>£100</Text>
 
-        <Text style={styles.label}>Deposit:</Text>
-        <Text style={styles.value}>£20 (non-refundable)</Text>
+          <Text style={styles.label}>Deposit:</Text>
+          <Text style={styles.value}>£20 (non-refundable)</Text>
 
-        <Text style={styles.label}>Choose Payment Option:</Text>
-        {["Pay Deposit", "Pay in Full"].map((option) => (
-          <TouchableOpacity
-            key={option}
-            style={[
-              styles.optionButton,
-              selectedOption === option && styles.selectedOption,
-            ]}
-            onPress={() => setSelectedOption(option)}
-          >
-            <Text
-              style={{
-                color: selectedOption === option ? "#fff" : "#333",
-              }}
+          <Text style={styles.label}>Choose Payment Option:</Text>
+          {["Pay Deposit", "Pay in Full"].map((option) => (
+            <TouchableOpacity
+              key={option}
+              style={[
+                styles.optionButton,
+                selectedOption === option && styles.selectedOption,
+              ]}
+              onPress={() => setSelectedOption(option)}
             >
-              {option}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+              <Text
+                style={{
+                  color: selectedOption === option ? "#fff" : "#333",
+                }}
+              >
+                {option}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
 
-      <Text style={styles.note}>
-        🔔 Note: Full payments are refundable only if cancelled 8+ hours before
-        booking time.
-      </Text>
+        <Text style={styles.note}>
+          🔔 Note: Full payments are refundable only if cancelled 8+ hours
+          before booking time.
+        </Text>
 
-      <Image
-        source={{
-          uri: "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=BookingConfirmed",
-        }}
-        style={styles.qr}
-      />
-
-      <TouchableOpacity style={styles.confirmButton} onPress={handleConfirm}>
-        <Text style={styles.confirmText}>Confirm Booking</Text>
-      </TouchableOpacity>
-    </ScrollView>
+        <TouchableOpacity style={styles.confirmButton} onPress={handleConfirm}>
+          <Text style={styles.confirmText}>Confirm Booking</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 20, backgroundColor: "#fff" },
+  safeArea: { flex: 1, backgroundColor: "#fff" },
+  container: {
+    padding: 20,
+    paddingBottom: 40,
+  },
   title: { fontSize: 22, fontWeight: "bold", marginBottom: 16 },
   card: {
     backgroundColor: "#f0f0f0",
@@ -131,12 +130,6 @@ const styles = StyleSheet.create({
     color: "#666",
     marginBottom: 16,
     textAlign: "center",
-  },
-  qr: {
-    width: 150,
-    height: 150,
-    alignSelf: "center",
-    marginBottom: 20,
   },
   confirmButton: {
     backgroundColor: "#28a745",

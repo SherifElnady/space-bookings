@@ -9,6 +9,7 @@ import {
   Modal,
   Image,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { UserContext } from "../context/UserContext";
 
 const MyBookingsScreen = () => {
@@ -57,7 +58,7 @@ const MyBookingsScreen = () => {
   );
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       {bookings.length > 0 ? (
         <FlatList
           data={bookings}
@@ -92,7 +93,7 @@ const MyBookingsScreen = () => {
           </View>
         </View>
       </Modal>
-    </View>
+    </SafeAreaView>
   );
 };
 

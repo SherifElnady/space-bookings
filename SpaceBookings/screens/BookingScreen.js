@@ -7,6 +7,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Modal,
+  TextInput,
   SafeAreaView,
 } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
@@ -23,6 +24,7 @@ const BookingScreen = () => {
   const [selectedFilters, setSelectedFilters] = useState(
     initialCategory ? [initialCategory] : []
   );
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     if (initialCategory) {
@@ -38,11 +40,16 @@ const BookingScreen = () => {
     );
   };
 
-  const filteredWorkspaces = featuredSpaces.filter((workspace) =>
-    selectedFilters.length > 0
-      ? selectedFilters.includes(workspace.category)
-      : true
-  );
+  const filteredWorkspaces = featuredSpaces.filter((workspace) => {
+    const matchCategory =
+      selectedFilters.length > 0
+        ? selectedFilters.includes(workspace.category)
+        : true;
+    const matchSearch = workspace.name
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
+    return matchCategory && matchSearch;
+  });
 
   const renderWorkspace = ({ item }) => (
     <TouchableOpacity
@@ -61,6 +68,15 @@ const BookingScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      {/* 🔍 Search bar */}
+      <TextInput
+        placeholder="🔍 Search workspaces..."
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+        style={styles.searchBox}
+      />
+
+      {/* 🔘 Filter Button */}
       <View style={styles.filterContainer}>
         <TouchableOpacity
           style={styles.filterButton}
@@ -71,6 +87,7 @@ const BookingScreen = () => {
         </TouchableOpacity>
       </View>
 
+      {/* ⚙️ Filter Modal */}
       <Modal
         visible={filterModalVisible}
         animationType="slide"
@@ -101,6 +118,7 @@ const BookingScreen = () => {
         </View>
       </Modal>
 
+      {/* 🖥️ Filtered List */}
       <FlatList
         data={filteredWorkspaces}
         keyExtractor={(item) => item.id.toString()}
@@ -112,7 +130,14 @@ const BookingScreen = () => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fff", padding: 16 },
-  filterContainer: { marginBottom: 16, alignItems: "flex-end" },
+  searchBox: {
+    backgroundColor: "#f2f2f2",
+    padding: 12,
+    borderRadius: 10,
+    fontSize: 16,
+    marginBottom: 10,
+  },
+  filterContainer: { marginBottom: 10, alignItems: "flex-end" },
   filterButton: {
     flexDirection: "row",
     alignItems: "center",
@@ -132,16 +157,8 @@ const styles = StyleSheet.create({
   workspaceInfo: { flex: 1, padding: 8 },
   workspaceName: { fontSize: 16, fontWeight: "bold" },
   workspaceCategory: { fontSize: 14, color: "#666" },
-  workspaceLocation: {
-    fontSize: 14,
-    color: "#007BFF",
-    marginTop: 4,
-  },
-  workspaceRating: {
-    fontSize: 14,
-    color: "#28a745",
-    marginTop: 4,
-  },
+  workspaceLocation: { fontSize: 14, color: "#007BFF", marginTop: 4 },
+  workspaceRating: { fontSize: 14, color: "#28a745", marginTop: 4 },
   modalContainer: {
     flex: 1,
     justifyContent: "center",
@@ -154,20 +171,13 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 16,
   },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 16,
-  },
+  modalTitle: { fontSize: 18, fontWeight: "bold", marginBottom: 16 },
   filterOption: {
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 8,
   },
-  filterLabel: {
-    marginLeft: 8,
-    fontSize: 16,
-  },
+  filterLabel: { marginLeft: 8, fontSize: 16 },
   applyButton: {
     marginTop: 16,
     backgroundColor: "#007BFF",
@@ -175,10 +185,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: "center",
   },
-  applyButtonText: {
-    color: "#fff",
-    fontSize: 16,
-  },
+  applyButtonText: { color: "#fff", fontSize: 16 },
 });
 
 export default BookingScreen;
