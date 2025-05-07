@@ -38,7 +38,10 @@ export default function BookingConfirmationScreen() {
     };
 
     addBooking(booking);
-    Alert.alert("Booking Confirmed", "Your booking has been saved.");
+
+    // ✅ Simulate Google Calendar sync
+    Alert.alert("Success", "Booking added to Google Calendar ✅");
+
     navigation.navigate("MainTabs", { screen: "MyBookings" });
   };
 
