@@ -8,7 +8,7 @@ import {
   Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, CommonActions } from "@react-navigation/native";
 import { UserContext } from "../context/UserContext";
 
 export default function SettingsScreen() {
@@ -26,10 +26,12 @@ export default function SettingsScreen() {
         style: "destructive",
         onPress: () => {
           setUser(null);
-          navigation.reset({
-            index: 0,
-            routes: [{ name: "Login" }],
-          });
+          navigation.dispatch(
+            CommonActions.reset({
+              index: 0,
+              routes: [{ name: "Login" }],
+            })
+          );
         },
       },
     ]);

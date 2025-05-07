@@ -1,18 +1,19 @@
-import React from "react";
-import { NavigationContainer } from "@react-navigation/native";
+import React, { useContext } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
+import { UserContext } from "../context/UserContext";
 
 // Screens
 import HomeScreen from "../screens/HomeScreen";
 import BookingScreen from "../screens/BookingScreen";
 import MyBookingsScreen from "../screens/MyBookingsScreen";
 import SettingsScreen from "../screens/SettingsScreen";
-import WorkSpace from "../screens/WorkSpace";
 import AdminPanel from "../screens/AdminPanel";
+import WorkSpace from "../screens/WorkSpace";
 import DateTimePickerScreen from "../screens/DateTimePickerScreen";
-import BookingConfirmationScreen from "../screens/BookingConfirmationScreen"; // ✅ Add this line
+import BookingConfirmationScreen from "../screens/BookingConfirmationScreen";
+import LoginScreen from "../screens/LoginScreen";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -24,6 +25,7 @@ function MainTabs() {
         headerShown: false,
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
+
           switch (route.name) {
             case "Home":
               iconName = focused ? "home" : "home-outline";
@@ -43,6 +45,7 @@ function MainTabs() {
             default:
               iconName = "ellipse";
           }
+
           return <Ionicons name={iconName} size={size} color={color} />;
         },
         tabBarActiveTintColor: "#007BFF",
@@ -59,17 +62,26 @@ function MainTabs() {
 }
 
 export default function Navigation() {
+  const { user } = useContext(UserContext);
+
   return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="MainTabs" component={MainTabs} />
-        <Stack.Screen name="WorkSpace" component={WorkSpace} />
-        <Stack.Screen name="DateTimePicker" component={DateTimePickerScreen} />
-        <Stack.Screen
-          name="BookingConfirmation"
-          component={BookingConfirmationScreen}
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      {user ? (
+        <>
+          <Stack.Screen name="MainTabs" component={MainTabs} />
+          <Stack.Screen name="WorkSpace" component={WorkSpace} />
+          <Stack.Screen
+            name="DateTimePicker"
+            component={DateTimePickerScreen}
+          />
+          <Stack.Screen
+            name="BookingConfirmation"
+            component={BookingConfirmationScreen}
+          />
+        </>
+      ) : (
+        <Stack.Screen name="Login" component={LoginScreen} />
+      )}
+    </Stack.Navigator>
   );
 }

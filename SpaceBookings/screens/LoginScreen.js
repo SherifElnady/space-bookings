@@ -1,5 +1,14 @@
-import React, { useState, useContext } from "react";
-import { View, Text, TextInput, Button, StyleSheet, Alert } from "react-native";
+import React, { useContext, useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  Alert,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { UserContext } from "../context/UserContext";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -22,125 +31,164 @@ const LoginScreen = () => {
   };
 
   const handleAuth = () => {
-    // ✅ If it's Sherif shortcut, bypass everything
     if (email.trim() === "Sherif" && password === "1234") {
-      navigation.reset({ index: 0, routes: [{ name: "MainTabs" }] });
+      setUser({ firstName: "Sherif", lastName: "Elnady", email });
       return;
     }
 
     if (isSigningUp) {
-      // ✅ Normal Signup
       if (!firstName || !lastName || !email || !password) {
         Alert.alert("Error", "Please fill in all fields.");
         return;
       }
       setUser({ firstName, lastName, email, password });
-      clearFields();
-      navigation.reset({ index: 0, routes: [{ name: "MainTabs" }] });
     } else {
-      // ✅ Normal Login
       if (!user) {
         Alert.alert("Error", "No account found. Please sign up first.");
         return;
       }
       if (email === user.email && password === user.password) {
         clearFields();
-        navigation.reset({ index: 0, routes: [{ name: "MainTabs" }] });
+        setUser(user);
       } else {
         Alert.alert("Error", "Invalid email or password.");
       }
     }
   };
 
+  const handleGuestAccess = () => {
+    setUser({ firstName: "Guest", lastName: "", email: "guest@demo.com" });
+  };
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>{isSigningUp ? "Sign Up" : "Login"}</Text>
-
-      {isSigningUp && (
-        <>
-          <TextInput
-            style={styles.input}
-            placeholder="First Name"
-            value={firstName}
-            onChangeText={setFirstName}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Last Name"
-            value={lastName}
-            onChangeText={setLastName}
-          />
-        </>
-      )}
-
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        autoCapitalize="none"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
-
-      <Button
-        title={isSigningUp ? "Sign Up" : "Login"}
-        onPress={handleAuth}
-        color="#4A90E2"
-      />
-
-      <View style={styles.switchContainer}>
-        <Text style={styles.switchText}>
-          {isSigningUp ? "Already have an account?" : "Don't have an account?"}
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      >
+        <Text style={styles.title}>
+          {isSigningUp ? "Create Account" : "Welcome Back"}
         </Text>
-        <Button
-          title={isSigningUp ? "Log In" : "Sign Up"}
-          onPress={() => {
-            setIsSigningUp(!isSigningUp);
-            clearFields();
-          }}
-          color="#666"
+
+        {isSigningUp && (
+          <>
+            <TextInput
+              style={styles.input}
+              placeholder="First Name"
+              value={firstName}
+              onChangeText={setFirstName}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Last Name"
+              value={lastName}
+              onChangeText={setLastName}
+            />
+          </>
+        )}
+
+        <TextInput
+          style={styles.input}
+          placeholder="Email"
+          value={email}
+          onChangeText={setEmail}
+          autoCapitalize="none"
         />
-      </View>
-    </View>
+        <TextInput
+          style={styles.input}
+          placeholder="Password"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+        />
+
+        <TouchableOpacity style={styles.authButton} onPress={handleAuth}>
+          <Text style={styles.authText}>
+            {isSigningUp ? "Sign Up" : "Login"}
+          </Text>
+        </TouchableOpacity>
+
+        <View style={styles.switchContainer}>
+          <Text style={styles.switchText}>
+            {isSigningUp
+              ? "Already have an account?"
+              : "Don't have an account?"}
+          </Text>
+          <TouchableOpacity
+            onPress={() => {
+              setIsSigningUp(!isSigningUp);
+              clearFields();
+            }}
+          >
+            <Text style={styles.switchLink}>
+              {isSigningUp ? "Log In" : "Sign Up"}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        <TouchableOpacity
+          style={styles.guestButton}
+          onPress={handleGuestAccess}
+        >
+          <Text style={styles.guestText}>Continue as Guest</Text>
+        </TouchableOpacity>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    padding: 20,
-    backgroundColor: "#fff",
-  },
+  container: { flex: 1, padding: 24, justifyContent: "center" },
   title: {
-    fontSize: 26,
+    fontSize: 28,
     fontWeight: "bold",
-    marginBottom: 20,
+    marginBottom: 24,
     textAlign: "center",
+    color: "#333",
   },
   input: {
     borderWidth: 1,
     borderColor: "#ccc",
-    marginBottom: 15,
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    borderRadius: 5,
-    fontSize: 18,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    borderRadius: 10,
+    fontSize: 16,
+    marginBottom: 12,
+  },
+  authButton: {
+    backgroundColor: "#007BFF",
+    paddingVertical: 14,
+    borderRadius: 10,
+    alignItems: "center",
+    marginTop: 8,
+  },
+  authText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
   },
   switchContainer: {
     marginTop: 20,
     alignItems: "center",
   },
   switchText: {
-    fontSize: 16,
-    marginBottom: 8,
+    fontSize: 15,
     color: "#555",
+  },
+  switchLink: {
+    marginTop: 6,
+    fontSize: 16,
+    color: "#007BFF",
+    fontWeight: "600",
+  },
+  guestButton: {
+    marginTop: 40,
+    alignItems: "center",
+  },
+  guestText: {
+    fontSize: 16,
+    color: "#007BFF",
+    textDecorationLine: "underline",
   },
 });
 

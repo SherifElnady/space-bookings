@@ -1,6 +1,3 @@
-// ✅ Step 1: Create a new file
-// File: utils/timeSlots.js
-
 export function generateTimeSlots() {
   const startHour = 8;
   const endHour = 20;

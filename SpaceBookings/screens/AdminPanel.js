@@ -7,9 +7,13 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
+  ScrollView,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
-import { UserContext } from "../context/UserContext";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { UserContext } from "../context/UserContext";
 
 const AdminPanel = () => {
   const { ownedSpaces, addOwnedSpace, removeOwnedSpace } =
@@ -24,6 +28,11 @@ const AdminPanel = () => {
   const handleAdd = () => {
     if (!name || !category || !location || !rating || !image) {
       Alert.alert("Missing Info", "Please fill in all fields.");
+      return;
+    }
+
+    if (isNaN(rating) || rating < 1 || rating > 5) {
+      Alert.alert("Invalid Rating", "Rating must be a number between 1 and 5.");
       return;
     }
 
@@ -45,115 +54,198 @@ const AdminPanel = () => {
   };
 
   const handleDelete = (id) => {
-    Alert.alert("Confirm", "Delete this coworking space?", [
-      { text: "No", style: "cancel" },
-      { text: "Yes", onPress: () => removeOwnedSpace(id) },
+    Alert.alert("Delete Space", "Are you sure?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: () => removeOwnedSpace(id),
+      },
     ]);
   };
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Admin Panel</Text>
-
-      {/* Form */}
-      <TextInput
-        placeholder="Workspace Name"
-        value={name}
-        onChangeText={setName}
-        style={styles.input}
-      />
-      <TextInput
-        placeholder="Category (Desk, Meeting Room...)"
-        value={category}
-        onChangeText={setCategory}
-        style={styles.input}
-      />
-      <TextInput
-        placeholder="Location"
-        value={location}
-        onChangeText={setLocation}
-        style={styles.input}
-      />
-      <TextInput
-        placeholder="Rating (1-5)"
-        value={rating}
-        onChangeText={setRating}
-        keyboardType="numeric"
-        style={styles.input}
-      />
-      <TextInput
-        placeholder="Image URL"
-        value={image}
-        onChangeText={setImage}
-        style={styles.input}
-      />
-      <TouchableOpacity style={styles.addButton} onPress={handleAdd}>
-        <Text style={styles.addButtonText}>Add Coworking Space</Text>
+  const renderSpaceItem = ({ item }) => (
+    <View style={styles.spaceCard}>
+      <Image source={{ uri: item.image }} style={styles.spaceImage} />
+      <View style={{ flex: 1 }}>
+        <Text style={styles.spaceTitle}>{item.name}</Text>
+        <Text style={styles.spaceDetail}>Category: {item.category}</Text>
+        <Text style={styles.spaceDetail}>Location: {item.location}</Text>
+        <Text style={styles.spaceDetail}>Rating: {item.rating}</Text>
+      </View>
+      <TouchableOpacity
+        onPress={() => handleDelete(item.id)}
+        style={styles.deleteButton}
+      >
+        <Text style={styles.deleteText}>Delete</Text>
       </TouchableOpacity>
+    </View>
+  );
 
-      {/* List */}
-      <FlatList
-        data={ownedSpaces}
-        keyExtractor={(item) => item.id}
-        style={{ marginTop: 20 }}
-        renderItem={({ item }) => (
-          <View style={styles.spaceItem}>
-            <Text style={styles.spaceName}>{item.name}</Text>
-            <Text style={styles.spaceInfo}>
-              {item.category} - {item.location}
-            </Text>
-            <Text style={styles.spaceInfo}>Rating: {item.rating}</Text>
-            <TouchableOpacity
-              style={styles.deleteButton}
-              onPress={() => handleDelete(item.id)}
-            >
-              <Text style={styles.deleteButtonText}>Delete</Text>
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        style={{ flex: 1 }}
+      >
+        <ScrollView
+          contentContainerStyle={styles.container}
+          keyboardShouldPersistTaps="handled"
+        >
+          <Text style={styles.title}>Admin Panel</Text>
+
+          <View style={styles.formSection}>
+            <Text style={styles.sectionTitle}>Add Coworking Space</Text>
+
+            <TextInput
+              style={styles.input}
+              placeholder="Name"
+              value={name}
+              onChangeText={setName}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Category (Desk, Meeting Room, etc.)"
+              value={category}
+              onChangeText={setCategory}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Location"
+              value={location}
+              onChangeText={setLocation}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Rating (1-5)"
+              value={rating}
+              onChangeText={setRating}
+              keyboardType="numeric"
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Image URL"
+              value={image}
+              onChangeText={setImage}
+            />
+
+            {image ? (
+              <Image
+                source={{ uri: image }}
+                style={styles.previewImage}
+                resizeMode="cover"
+              />
+            ) : null}
+
+            <TouchableOpacity style={styles.addButton} onPress={handleAdd}>
+              <Text style={styles.addButtonText}>Add Space</Text>
             </TouchableOpacity>
           </View>
-        )}
-        ListEmptyComponent={
-          <Text style={{ marginTop: 30, color: "#777", textAlign: "center" }}>
-            No coworking spaces added yet.
-          </Text>
-        }
-      />
-    </View>
+
+          <Text style={styles.sectionTitle}>My Spaces</Text>
+          {ownedSpaces.length > 0 ? (
+            <FlatList
+              data={ownedSpaces}
+              keyExtractor={(item) => item.id}
+              renderItem={renderSpaceItem}
+              contentContainerStyle={{ paddingBottom: 20 }}
+            />
+          ) : (
+            <Text style={styles.emptyText}>
+              You haven’t added any spaces yet.
+            </Text>
+          )}
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#fff" },
-  title: { fontSize: 24, fontWeight: "bold", marginBottom: 20 },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    padding: 10,
+  safeArea: { flex: 1, backgroundColor: "#f8f8f8" },
+  container: { padding: 20 },
+  title: {
+    fontSize: 28,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginBottom: 20,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "600",
     marginBottom: 10,
+    color: "#333",
+  },
+  formSection: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 30,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 3,
+  },
+  input: {
+    backgroundColor: "#f2f2f2",
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 12,
+    fontSize: 16,
+  },
+  previewImage: {
+    width: "100%",
+    height: 150,
+    borderRadius: 10,
+    marginBottom: 15,
   },
   addButton: {
     backgroundColor: "#28a745",
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  addButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  spaceCard: {
+    backgroundColor: "#fff",
+    flexDirection: "row",
     padding: 12,
-    borderRadius: 8,
+    borderRadius: 10,
+    marginBottom: 15,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 2,
     alignItems: "center",
   },
-  addButtonText: { color: "#fff", fontWeight: "bold" },
-  spaceItem: {
-    backgroundColor: "#f0f0f0",
-    padding: 15,
+  spaceImage: {
+    width: 70,
+    height: 70,
     borderRadius: 8,
-    marginBottom: 10,
+    marginRight: 12,
+    backgroundColor: "#ccc",
   },
-  spaceName: { fontSize: 18, fontWeight: "bold" },
-  spaceInfo: { color: "#555", marginTop: 4 },
+  spaceTitle: { fontSize: 16, fontWeight: "bold", marginBottom: 4 },
+  spaceDetail: { fontSize: 14, color: "#555" },
   deleteButton: {
-    marginTop: 10,
     backgroundColor: "#dc3545",
-    paddingVertical: 8,
-    borderRadius: 5,
-    alignItems: "center",
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 6,
+    marginLeft: 10,
   },
-  deleteButtonText: { color: "#fff", fontWeight: "bold" },
+  deleteText: { color: "#fff", fontWeight: "bold", fontSize: 13 },
+  emptyText: {
+    textAlign: "center",
+    color: "#999",
+    fontSize: 16,
+    marginTop: 20,
+    fontStyle: "italic",
+  },
 });
 
 export default AdminPanel;
