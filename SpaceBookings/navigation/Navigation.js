@@ -12,11 +12,11 @@ import SettingsScreen from "../screens/SettingsScreen";
 import WorkSpace from "../screens/WorkSpace";
 import AdminPanel from "../screens/AdminPanel";
 import DateTimePickerScreen from "../screens/DateTimePickerScreen";
+import BookingConfirmationScreen from "../screens/BookingConfirmationScreen"; // ✅ Add this line
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
-// Bottom tab navigation
 function MainTabs() {
   return (
     <Tab.Navigator
@@ -24,7 +24,6 @@ function MainTabs() {
         headerShown: false,
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
-
           switch (route.name) {
             case "Home":
               iconName = focused ? "home" : "home-outline";
@@ -44,7 +43,6 @@ function MainTabs() {
             default:
               iconName = "ellipse";
           }
-
           return <Ionicons name={iconName} size={size} color={color} />;
         },
         tabBarActiveTintColor: "#007BFF",
@@ -60,7 +58,6 @@ function MainTabs() {
   );
 }
 
-// App navigation
 export default function Navigation() {
   return (
     <NavigationContainer>
@@ -68,6 +65,10 @@ export default function Navigation() {
         <Stack.Screen name="MainTabs" component={MainTabs} />
         <Stack.Screen name="WorkSpace" component={WorkSpace} />
         <Stack.Screen name="DateTimePicker" component={DateTimePickerScreen} />
+        <Stack.Screen
+          name="BookingConfirmation"
+          component={BookingConfirmationScreen}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

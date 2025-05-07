@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import {
   View,
   Text,
@@ -6,11 +6,15 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
+  Modal,
+  Image,
 } from "react-native";
 import { UserContext } from "../context/UserContext";
 
 const MyBookingsScreen = () => {
   const { bookings, removeBooking } = useContext(UserContext);
+  const [selectedBooking, setSelectedBooking] = useState(null);
+  const [showQR, setShowQR] = useState(false);
 
   const handleCancelBooking = (id) => {
     Alert.alert(
@@ -31,6 +35,17 @@ const MyBookingsScreen = () => {
         Date: {new Date(item.date).toDateString()}
       </Text>
       <Text style={styles.details}>Time: {item.time}</Text>
+      <Text style={styles.details}>Payment: {item.paymentOption}</Text>
+
+      <TouchableOpacity
+        style={styles.qrButton}
+        onPress={() => {
+          setSelectedBooking(item);
+          setShowQR(true);
+        }}
+      >
+        <Text style={styles.qrButtonText}>Show QR Code</Text>
+      </TouchableOpacity>
 
       <TouchableOpacity
         style={styles.cancelButton}
@@ -57,6 +72,26 @@ const MyBookingsScreen = () => {
           </Text>
         </View>
       )}
+
+      <Modal visible={showQR} transparent animationType="slide">
+        <View style={styles.modalContainer}>
+          <View style={styles.qrBox}>
+            <Text style={styles.modalTitle}>Check-in QR Code</Text>
+            <Image
+              source={{
+                uri: "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=DemoBooking",
+              }}
+              style={styles.qrImage}
+            />
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setShowQR(false)}
+            >
+              <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -69,10 +104,6 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 8,
     marginBottom: 15,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
     elevation: 2,
   },
   workspaceName: { fontSize: 18, fontWeight: "bold", marginBottom: 5 },
@@ -85,12 +116,42 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   cancelButtonText: { color: "#fff", fontWeight: "bold" },
+  qrButton: {
+    marginTop: 10,
+    backgroundColor: "#007BFF",
+    paddingVertical: 8,
+    borderRadius: 5,
+    alignItems: "center",
+  },
+  qrButtonText: { color: "#fff", fontWeight: "bold" },
   placeholderContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
   placeholderText: { fontSize: 16, color: "#888", textAlign: "center" },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  qrBox: {
+    backgroundColor: "#fff",
+    padding: 20,
+    borderRadius: 12,
+    alignItems: "center",
+  },
+  modalTitle: { fontSize: 18, fontWeight: "bold", marginBottom: 10 },
+  qrImage: { width: 200, height: 200 },
+  closeButton: {
+    marginTop: 15,
+    backgroundColor: "#007BFF",
+    paddingVertical: 8,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+  },
+  closeButtonText: { color: "#fff", fontWeight: "bold" },
 });
 
 export default MyBookingsScreen;

@@ -25,7 +25,7 @@ export default function DateTimePickerScreen() {
   const navigation = useNavigation();
   const route = useRoute();
   const { space } = route.params;
-  const { bookings, addBooking } = useContext(UserContext);
+  const { bookings } = useContext(UserContext);
 
   const [date, setDate] = useState(new Date());
   const [showPicker, setShowPicker] = useState(false);
@@ -41,18 +41,13 @@ export default function DateTimePickerScreen() {
     )
     .map((b) => b.time);
 
-  const handleBook = () => {
+  const handleNext = () => {
     if (!selectedTime) return;
-    const newBooking = {
-      id: Date.now().toString(),
-      spaceId: space.id,
-      spaceName: space.name,
-      location: space.location,
-      date: date.toISOString(),
+    navigation.navigate("BookingConfirmation", {
+      space,
+      date,
       time: selectedTime,
-    };
-    addBooking(newBooking);
-    navigation.navigate("MainTabs", { screen: "MyBookings" }); // ✅ Fixed navigation
+    });
   };
 
   return (
@@ -112,9 +107,9 @@ export default function DateTimePickerScreen() {
       <TouchableOpacity
         style={[styles.bookButton, !selectedTime && { opacity: 0.5 }]}
         disabled={!selectedTime}
-        onPress={handleBook}
+        onPress={handleNext}
       >
-        <Text style={styles.bookButtonText}>Confirm Booking</Text>
+        <Text style={styles.bookButtonText}>Next</Text>
       </TouchableOpacity>
     </ScrollView>
   );
