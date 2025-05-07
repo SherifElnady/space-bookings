@@ -1,105 +1,119 @@
-import React from "react";
-import { View, Text, Button, StyleSheet } from "react-native";
-import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { useNavigation } from "@react-navigation/native";
-import { UserContext } from "../context/UserContext"; // ✅ Import User Context
+import React, { useContext, useState } from "react";
+import {
+  View,
+  Text,
+  Switch,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useNavigation } from "@react-navigation/native";
+import { UserContext } from "../context/UserContext";
 
-// Screens
-const LoginScreen = ({ navigation }) => {
-  return (
-    <View style={styles.screen}>
-      <Text style={styles.title}>Login Screen</Text>
-      <Button
-        title="Login"
-        onPress={() =>
-          navigation.reset({
-            index: 0,
-            routes: [{ name: "MainTabs" }],
-          })
-        }
-      />
-    </View>
-  );
-};
-
-const HomeScreen = () => (
-  <View style={styles.screen}>
-    <Text style={styles.title}>Home Screen</Text>
-  </View>
-);
-
-const BookingScreen = () => (
-  <View style={styles.screen}>
-    <Text style={styles.title}>Booking Screen</Text>
-  </View>
-);
-
-const MyBookingsScreen = () => (
-  <View style={styles.screen}>
-    <Text style={styles.title}>My Bookings Screen</Text>
-  </View>
-);
-
-const SettingsScreen = () => {
+export default function SettingsScreen() {
+  const { user, setUser } = useContext(UserContext);
   const navigation = useNavigation();
-  const { setUser } = useContext(UserContext); // ✅ Access setUser from Context
+
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
 
   const handleLogout = () => {
-    setUser(null); // ✅ Clears the user data (logs out)
-    navigation.reset({
-      index: 0,
-      routes: [{ name: "Login" }], // ✅ Sends back to Login screen
-    });
+    Alert.alert("Log Out", "Are you sure you want to log out?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Log Out",
+        style: "destructive",
+        onPress: () => {
+          setUser(null);
+          navigation.reset({
+            index: 0,
+            routes: [{ name: "Login" }],
+          });
+        },
+      },
+    ]);
   };
 
   return (
-    <View style={styles.screen}>
-      <Text style={styles.title}>Settings Screen</Text>
-      <Button title="Logout" onPress={handleLogout} />
-    </View>
-  );
-};
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.title}>Settings</Text>
 
-// Navigators
-const Stack = createStackNavigator();
-const Tab = createBottomTabNavigator();
+      <View style={styles.card}>
+        <Text style={styles.sectionTitle}>User Info</Text>
+        <Text style={styles.infoText}>
+          Name: {user?.firstName} {user?.lastName}
+        </Text>
+        <Text style={styles.infoText}>Email: {user?.email}</Text>
+      </View>
 
-const MainTabs = () => (
-  <Tab.Navigator>
-    <Tab.Screen name="Home" component={HomeScreen} />
-    <Tab.Screen name="Booking" component={BookingScreen} />
-    <Tab.Screen name="MyBookings" component={MyBookingsScreen} />
-    <Tab.Screen name="Settings" component={SettingsScreen} />
-  </Tab.Navigator>
-);
+      <View style={styles.card}>
+        <Text style={styles.sectionTitle}>Preferences</Text>
 
-const AppNavigator = () => (
-  <Stack.Navigator screenOptions={{ headerShown: false }}>
-    <Stack.Screen name="Login" component={LoginScreen} />
-    <Stack.Screen name="MainTabs" component={MainTabs} />
-  </Stack.Navigator>
-);
+        <View style={styles.settingRow}>
+          <Text style={styles.settingLabel}>Dark Mode</Text>
+          <Switch
+            value={isDarkMode}
+            onValueChange={() => setIsDarkMode((prev) => !prev)}
+          />
+        </View>
 
-export default function App() {
-  return (
-    <NavigationContainer>
-      <AppNavigator />
-    </NavigationContainer>
+        <View style={styles.settingRow}>
+          <Text style={styles.settingLabel}>Notifications</Text>
+          <Switch
+            value={notificationsEnabled}
+            onValueChange={() => setNotificationsEnabled((prev) => !prev)}
+          />
+        </View>
+      </View>
+
+      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+        <Text style={styles.logoutText}>Log Out</Text>
+      </TouchableOpacity>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
+  container: { flex: 1, padding: 20, backgroundColor: "#fff" },
+  title: { fontSize: 24, fontWeight: "bold", marginBottom: 20 },
+  card: {
+    backgroundColor: "#f5f5f5",
+    borderRadius: 12,
+    padding: 16,
     marginBottom: 20,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 12,
+    color: "#333",
+  },
+  infoText: {
+    fontSize: 14,
+    marginBottom: 6,
+    color: "#555",
+  },
+  settingRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginVertical: 10,
+  },
+  settingLabel: {
+    fontSize: 15,
+    color: "#333",
+  },
+  logoutButton: {
+    backgroundColor: "#ff4d4d",
+    padding: 14,
+    borderRadius: 10,
+    alignItems: "center",
+    marginTop: "auto",
+  },
+  logoutText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
   },
 });

@@ -6,14 +6,15 @@ import {
   ScrollView,
   StyleSheet,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { UserContext } from "../context/UserContext";
 
 const generateTimeSlots = () => {
   const slots = [];
-  const start = 8; // 8 AM
-  const end = 20; // 8 PM
+  const start = 8;
+  const end = 20;
   for (let i = start; i < end; i++) {
     slots.push(`${i}:00`);
     slots.push(`${i}:30`);
@@ -51,72 +52,74 @@ export default function DateTimePickerScreen() {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Choose a Date and Time</Text>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
+      <ScrollView contentContainerStyle={styles.container}>
+        <Text style={styles.title}>Choose a Date and Time</Text>
 
-      <TouchableOpacity
-        onPress={() => setShowPicker(true)}
-        style={styles.dateButton}
-      >
-        <Text style={styles.dateText}>{date.toDateString()}</Text>
-      </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => setShowPicker(true)}
+          style={styles.dateButton}
+        >
+          <Text style={styles.dateText}>{date.toDateString()}</Text>
+        </TouchableOpacity>
 
-      {showPicker && (
-        <DateTimePicker
-          value={date}
-          mode="date"
-          display="default"
-          onChange={(event, selectedDate) => {
-            setShowPicker(false);
-            if (selectedDate) setDate(selectedDate);
-          }}
-        />
-      )}
+        {showPicker && (
+          <DateTimePicker
+            value={date}
+            mode="date"
+            display="default"
+            onChange={(event, selectedDate) => {
+              setShowPicker(false);
+              if (selectedDate) setDate(selectedDate);
+            }}
+          />
+        )}
 
-      <Text style={styles.subtitle}>Available Time Slots</Text>
-      <View style={styles.slotContainer}>
-        {timeSlots.map((slot, index) => {
-          const isBooked = bookedTimes.includes(slot);
-          return (
-            <TouchableOpacity
-              key={index}
-              disabled={isBooked}
-              style={[
-                styles.timeSlot,
-                selectedTime === slot && styles.selectedSlot,
-                isBooked && styles.bookedSlot,
-              ]}
-              onPress={() => setSelectedTime(slot)}
-            >
-              <Text
-                style={{
-                  color: isBooked
-                    ? "#999"
-                    : selectedTime === slot
-                    ? "#fff"
-                    : "#000",
-                }}
+        <Text style={styles.subtitle}>Available Time Slots</Text>
+        <View style={styles.slotContainer}>
+          {timeSlots.map((slot, index) => {
+            const isBooked = bookedTimes.includes(slot);
+            return (
+              <TouchableOpacity
+                key={index}
+                disabled={isBooked}
+                style={[
+                  styles.timeSlot,
+                  selectedTime === slot && styles.selectedSlot,
+                  isBooked && styles.bookedSlot,
+                ]}
+                onPress={() => setSelectedTime(slot)}
               >
-                {slot}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
-      </View>
+                <Text
+                  style={{
+                    color: isBooked
+                      ? "#999"
+                      : selectedTime === slot
+                      ? "#fff"
+                      : "#000",
+                  }}
+                >
+                  {slot}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
 
-      <TouchableOpacity
-        style={[styles.bookButton, !selectedTime && { opacity: 0.5 }]}
-        disabled={!selectedTime}
-        onPress={handleNext}
-      >
-        <Text style={styles.bookButtonText}>Next</Text>
-      </TouchableOpacity>
-    </ScrollView>
+        <TouchableOpacity
+          style={[styles.bookButton, !selectedTime && { opacity: 0.5 }]}
+          disabled={!selectedTime}
+          onPress={handleNext}
+        >
+          <Text style={styles.bookButtonText}>Next</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 20, backgroundColor: "#fff" },
+  container: { padding: 20 },
   title: { fontSize: 22, fontWeight: "bold", marginBottom: 16 },
   subtitle: { fontSize: 18, fontWeight: "600", marginVertical: 12 },
   dateButton: {

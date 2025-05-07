@@ -19,6 +19,10 @@ export const UserProvider = ({ children }) => {
     setOwnedSpaces((prev) => [...prev, space]);
   };
 
+  const removeOwnedSpace = (id) => {
+    setOwnedSpaces((prev) => prev.filter((s) => s.id !== id));
+  };
+
   return (
     <UserContext.Provider
       value={{
@@ -29,6 +33,7 @@ export const UserProvider = ({ children }) => {
         removeBooking,
         ownedSpaces,
         addOwnedSpace,
+        removeOwnedSpace, // ✅ added this line
       }}
     >
       {children}
