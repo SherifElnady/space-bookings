@@ -14,6 +14,7 @@ import WorkSpace from "../screens/WorkSpace";
 import DateTimePickerScreen from "../screens/DateTimePickerScreen";
 import BookingConfirmationScreen from "../screens/BookingConfirmationScreen";
 import LoginScreen from "../screens/LoginScreen";
+import MembershipScreen from "../screens/MembershipScreen";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -25,7 +26,6 @@ function MainTabs() {
         headerShown: false,
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
-
           switch (route.name) {
             case "Home":
               iconName = focused ? "home" : "home-outline";
@@ -42,10 +42,12 @@ function MainTabs() {
             case "Admin":
               iconName = focused ? "construct" : "construct-outline";
               break;
+            case "Membership":
+              iconName = focused ? "star" : "star-outline";
+              break;
             default:
               iconName = "ellipse";
           }
-
           return <Ionicons name={iconName} size={size} color={color} />;
         },
         tabBarActiveTintColor: "#007BFF",
@@ -55,6 +57,7 @@ function MainTabs() {
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Booking" component={BookingScreen} />
       <Tab.Screen name="MyBookings" component={MyBookingsScreen} />
+      <Tab.Screen name="Membership" component={MembershipScreen} />
       <Tab.Screen name="Settings" component={SettingsScreen} />
       <Tab.Screen name="Admin" component={AdminPanel} />
     </Tab.Navigator>

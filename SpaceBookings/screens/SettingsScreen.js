@@ -69,6 +69,13 @@ export default function SettingsScreen() {
         </View>
       </View>
 
+      <TouchableOpacity
+        style={styles.membershipButton}
+        onPress={() => navigation.navigate("Membership")}
+      >
+        <Text style={styles.membershipText}>View Membership Plans</Text>
+      </TouchableOpacity>
+
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
         <Text style={styles.logoutText}>Log Out</Text>
       </TouchableOpacity>
@@ -106,12 +113,23 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: "#333",
   },
+  membershipButton: {
+    backgroundColor: "#007BFF",
+    padding: 14,
+    borderRadius: 10,
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  membershipText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
   logoutButton: {
     backgroundColor: "#ff4d4d",
     padding: 14,
     borderRadius: 10,
     alignItems: "center",
-    marginTop: "auto",
   },
   logoutText: {
     color: "#fff",
