@@ -28,6 +28,11 @@ const MyBookingsScreen = () => {
     );
   };
 
+  const handleAddToGoogleCalendar = (booking) => {
+    // This is a placeholder – your friend can replace with real integration
+    Alert.alert("Demo", `Added "${booking.spaceName}" to Google Calendar ✅`);
+  };
+
   const renderBookingItem = ({ item }) => (
     <View style={styles.bookingItem}>
       <Text style={styles.workspaceName}>{item.spaceName}</Text>
@@ -46,6 +51,13 @@ const MyBookingsScreen = () => {
         }}
       >
         <Text style={styles.qrButtonText}>Show QR Code</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.googleButton}
+        onPress={() => handleAddToGoogleCalendar(item)}
+      >
+        <Text style={styles.googleButtonText}>Add to Google Calendar</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -109,14 +121,7 @@ const styles = StyleSheet.create({
   },
   workspaceName: { fontSize: 18, fontWeight: "bold", marginBottom: 5 },
   details: { fontSize: 14, color: "#555", marginBottom: 3 },
-  cancelButton: {
-    marginTop: 10,
-    backgroundColor: "#ff4d4d",
-    paddingVertical: 8,
-    borderRadius: 5,
-    alignItems: "center",
-  },
-  cancelButtonText: { color: "#fff", fontWeight: "bold" },
+
   qrButton: {
     marginTop: 10,
     backgroundColor: "#007BFF",
@@ -125,12 +130,32 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   qrButtonText: { color: "#fff", fontWeight: "bold" },
+
+  googleButton: {
+    marginTop: 8,
+    backgroundColor: "#34A853",
+    paddingVertical: 8,
+    borderRadius: 5,
+    alignItems: "center",
+  },
+  googleButtonText: { color: "#fff", fontWeight: "bold" },
+
+  cancelButton: {
+    marginTop: 8,
+    backgroundColor: "#ff4d4d",
+    paddingVertical: 8,
+    borderRadius: 5,
+    alignItems: "center",
+  },
+  cancelButtonText: { color: "#fff", fontWeight: "bold" },
+
   placeholderContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
   placeholderText: { fontSize: 16, color: "#888", textAlign: "center" },
+
   modalContainer: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.5)",
