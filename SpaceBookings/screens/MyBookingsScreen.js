@@ -8,6 +8,7 @@ import {
   Alert,
   Modal,
   Image,
+  Linking,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { UserContext } from "../context/UserContext";
@@ -29,8 +30,15 @@ const MyBookingsScreen = () => {
   };
 
   const handleAddToGoogleCalendar = (booking) => {
-    // This is a placeholder – your friend can replace with real integration
-    Alert.alert("Demo", `Added "${booking.spaceName}" to Google Calendar ✅`);
+    const baseUrl = "https://www.google.com/calendar/render";
+    const params = new URLSearchParams({
+      action: "TEMPLATE",
+      text: `${booking.spaceName} booking at ${booking.location}, ${booking.time}`,
+      dates: booking.date,
+      details: `Booking ID: ${booking.id}, for a ${booking.category} space at ${booking.location}`,
+    });
+
+    Linking.openURL(`${baseUrl}?${params.toString()}`);
   };
 
   const renderBookingItem = ({ item }) => (
